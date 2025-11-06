@@ -1,0 +1,1158 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>外卖平台 - 美食配送到家</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', sans-serif;
+            background: linear-gradient(135deg, #fff5f0 0%, #ffe8dc 100%);
+            min-height: 100vh;
+            position: relative;
+            overflow-x: hidden;
+        }
+
+        /* 装饰性背景元素 */
+        body::before {
+            content: '';
+            position: fixed;
+            top: -50%;
+            right: -10%;
+            width: 600px;
+            height: 600px;
+            background: radial-gradient(circle, rgba(255, 107, 53, 0.08) 0%, transparent 70%);
+            border-radius: 50%;
+            z-index: 0;
+        }
+
+        body::after {
+            content: '';
+            position: fixed;
+            bottom: -30%;
+            left: -10%;
+            width: 500px;
+            height: 500px;
+            background: radial-gradient(circle, rgba(255, 152, 0, 0.06) 0%, transparent 70%);
+            border-radius: 50%;
+            z-index: 0;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+            position: relative;
+            z-index: 1;
+        }
+
+        /* Header */
+        header {
+            background: white;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .header-content {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 16px 0;
+            gap: 32px;
+        }
+
+        .logo {
+            font-size: 28px;
+            font-weight: 800;
+            background: linear-gradient(135deg, #ff6b35 0%, #ff9800 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            white-space: nowrap;
+        }
+
+        .location-selector {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 16px;
+            background: #fff5f0;
+            border-radius: 20px;
+            cursor: pointer;
+            transition: all 0.3s;
+            position: relative;
+        }
+
+        .location-selector:hover {
+            background: #ffe8dc;
+            transform: translateY(-2px);
+        }
+
+        .location-icon {
+            color: #ff6b35;
+            font-size: 18px;
+        }
+
+        .city-dropdown {
+            display: none;
+            position: absolute;
+            top: 100%;
+            left: 0;
+            margin-top: 8px;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+            padding: 16px;
+            min-width: 400px;
+            max-height: 400px;
+            overflow-y: auto;
+            z-index: 1000;
+        }
+
+        .city-dropdown.active {
+            display: block;
+        }
+
+        .city-group {
+            margin-bottom: 16px;
+        }
+
+        .city-group-title {
+            font-size: 14px;
+            font-weight: 600;
+            color: #666;
+            margin-bottom: 8px;
+        }
+
+        .city-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 8px;
+        }
+
+        .city-item {
+            padding: 8px 12px;
+            text-align: center;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-size: 14px;
+        }
+
+        .city-item:hover {
+            background: #fff5f0;
+            color: #ff6b35;
+        }
+
+        .nav-menu {
+            display: flex;
+            gap: 32px;
+            list-style: none;
+        }
+
+        .nav-menu a {
+            text-decoration: none;
+            color: #333;
+            font-weight: 500;
+            transition: color 0.3s;
+        }
+
+        .nav-menu a:hover {
+            color: #ff6b35;
+        }
+
+        .user-actions {
+            display: flex;
+            gap: 16px;
+            align-items: center;
+        }
+
+        .btn {
+            padding: 10px 24px;
+            border-radius: 24px;
+            border: none;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s;
+            font-size: 14px;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #ff6b35 0%, #ff9800 100%);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(255, 107, 53, 0.3);
+        }
+
+        /* Search Section */
+        .search-section {
+            padding: 40px 0;
+        }
+
+        .search-container {
+            background: white;
+            border-radius: 16px;
+            padding: 24px;
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
+            position: relative;
+        }
+
+        .search-box {
+            display: flex;
+            gap: 12px;
+            align-items: center;
+            padding: 16px 20px;
+            background: #f8f9fa;
+            border-radius: 12px;
+            border: 2px solid transparent;
+            transition: all 0.3s;
+        }
+
+        .search-box:focus-within {
+            border-color: #ff6b35;
+            background: white;
+            box-shadow: 0 4px 12px rgba(255, 107, 53, 0.1);
+        }
+
+        .search-input {
+            flex: 1;
+            border: none;
+            background: transparent;
+            font-size: 16px;
+            outline: none;
+        }
+
+        .search-btn {
+            padding: 10px 24px;
+            background: linear-gradient(135deg, #ff6b35 0%, #ff9800 100%);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s;
+        }
+
+        .search-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(255, 107, 53, 0.3);
+        }
+
+        .hot-searches {
+            display: flex;
+            gap: 12px;
+            margin-top: 16px;
+            flex-wrap: wrap;
+        }
+
+        .hot-tag {
+            padding: 6px 16px;
+            background: #fff5f0;
+            border-radius: 16px;
+            font-size: 14px;
+            color: #ff6b35;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .hot-tag:hover {
+            background: #ff6b35;
+            color: white;
+            transform: translateY(-2px);
+        }
+
+        /* Category Navigation */
+        .category-section {
+            padding: 32px 0;
+        }
+
+        .category-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 20px;
+            background: white;
+            padding: 24px;
+            border-radius: 16px;
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
+        }
+
+        .category-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 12px;
+            padding: 20px;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.3s;
+            background: linear-gradient(135deg, #fff5f0 0%, #ffe8dc 100%);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .category-item::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            right: -50%;
+            width: 100px;
+            height: 100px;
+            background: radial-gradient(circle, rgba(255, 107, 53, 0.1) 0%, transparent 70%);
+            border-radius: 50%;
+            transition: all 0.3s;
+        }
+
+        .category-item:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 8px 20px rgba(255, 107, 53, 0.2);
+        }
+
+        .category-item:hover::before {
+            top: 50%;
+            right: 50%;
+            transform: translate(50%, -50%) scale(1.5);
+        }
+
+        .category-icon {
+            font-size: 40px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .category-name {
+            font-weight: 600;
+            color: #333;
+            position: relative;
+            z-index: 1;
+        }
+
+        /* Banner Carousel */
+        .banner-section {
+            padding: 32px 0;
+        }
+
+        .banner-carousel {
+            position: relative;
+            border-radius: 16px;
+            overflow: hidden;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+            height: 300px;
+        }
+
+        .banner-slide {
+            display: none;
+            width: 100%;
+            height: 100%;
+            position: relative;
+        }
+
+        .banner-slide.active {
+            display: block;
+        }
+
+        .banner-slide img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .banner-overlay {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            padding: 24px;
+            background: linear-gradient(to top, rgba(0, 0, 0, 0.7), transparent);
+            color: white;
+        }
+
+        .banner-title {
+            font-size: 24px;
+            font-weight: 700;
+            margin-bottom: 8px;
+        }
+
+        .banner-dots {
+            position: absolute;
+            bottom: 16px;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            gap: 8px;
+        }
+
+        .dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.5);
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .dot.active {
+            background: white;
+            width: 24px;
+            border-radius: 4px;
+        }
+
+        /* Merchant List */
+        .merchant-section {
+            padding: 32px 0;
+        }
+
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 24px;
+        }
+
+        .section-title {
+            font-size: 24px;
+            font-weight: 700;
+            color: #333;
+        }
+
+        .filters {
+            display: flex;
+            gap: 12px;
+        }
+
+        .filter-btn {
+            padding: 8px 16px;
+            background: white;
+            border: 1px solid #e0e0e0;
+            border-radius: 20px;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-size: 14px;
+        }
+
+        .filter-btn:hover, .filter-btn.active {
+            background: #ff6b35;
+            color: white;
+            border-color: #ff6b35;
+        }
+
+        .merchant-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 24px;
+        }
+
+        .merchant-card {
+            background: white;
+            border-radius: 16px;
+            overflow: hidden;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+            transition: all 0.3s;
+            cursor: pointer;
+            border-left: 4px solid transparent;
+        }
+
+        .merchant-card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 12px 24px rgba(255, 107, 53, 0.2);
+            border-left-color: #ff6b35;
+        }
+
+        .merchant-image {
+            width: 100%;
+            height: 180px;
+            object-fit: cover;
+        }
+
+        .merchant-info {
+            padding: 16px;
+        }
+
+        .merchant-name {
+            font-size: 18px;
+            font-weight: 700;
+            margin-bottom: 8px;
+            color: #333;
+        }
+
+        .merchant-tags {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 12px;
+            flex-wrap: wrap;
+        }
+
+        .tag {
+            padding: 4px 12px;
+            background: #fff5f0;
+            border-radius: 12px;
+            font-size: 12px;
+            color: #ff6b35;
+        }
+
+        .merchant-stats {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding-top: 12px;
+            border-top: 1px solid #f0f0f0;
+        }
+
+        .rating {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            padding: 4px 12px;
+            background: linear-gradient(135deg, #ffd700 0%, #ffed4e 100%);
+            border-radius: 12px;
+            font-weight: 600;
+            font-size: 14px;
+        }
+
+        .delivery-info {
+            font-size: 14px;
+            color: #666;
+        }
+
+        /* Footer */
+        footer {
+            background: white;
+            margin-top: 64px;
+            padding: 48px 0 24px;
+            box-shadow: 0 -2px 8px rgba(0, 0, 0, 0.08);
+        }
+
+        .footer-content {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 32px;
+            margin-bottom: 32px;
+        }
+
+        .footer-section h3 {
+            font-size: 16px;
+            font-weight: 700;
+            margin-bottom: 16px;
+            color: #333;
+        }
+
+        .footer-section ul {
+            list-style: none;
+        }
+
+        .footer-section li {
+            margin-bottom: 12px;
+        }
+
+        .footer-section a {
+            color: #666;
+            text-decoration: none;
+            transition: color 0.3s;
+        }
+
+        .footer-section a:hover {
+            color: #ff6b35;
+        }
+
+        .footer-bottom {
+            text-align: center;
+            padding-top: 24px;
+            border-top: 1px solid #e0e0e0;
+            color: #999;
+            font-size: 14px;
+        }
+
+        /* Floating Cart */
+        .floating-cart {
+            position: fixed;
+            bottom: 32px;
+            right: 32px;
+            width: 64px;
+            height: 64px;
+            background: linear-gradient(135deg, #ff6b35 0%, #ff9800 100%);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 24px;
+            cursor: pointer;
+            box-shadow: 0 8px 24px rgba(255, 107, 53, 0.4);
+            transition: all 0.3s;
+            z-index: 1000;
+        }
+
+        .floating-cart:hover {
+            transform: scale(1.1);
+            box-shadow: 0 12px 32px rgba(255, 107, 53, 0.5);
+        }
+
+        .cart-badge {
+            position: absolute;
+            top: -4px;
+            right: -4px;
+            background: #ff3b30;
+            color: white;
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+            font-weight: 700;
+        }
+
+        /* Welcome Celebration */
+        .welcome-celebration {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.5);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 10000;
+            animation: fadeIn 0.3s ease-out;
+        }
+
+        .welcome-celebration.active {
+            display: flex;
+        }
+
+        .welcome-card {
+            background: white;
+            padding: 48px;
+            border-radius: 24px;
+            text-align: center;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            animation: bounceIn 0.6s ease-out;
+        }
+
+        .welcome-icon {
+            font-size: 64px;
+            margin-bottom: 16px;
+            animation: swing 1s ease-in-out infinite;
+        }
+
+        .welcome-title {
+            font-size: 32px;
+            font-weight: 700;
+            background: linear-gradient(135deg, #ff6b35 0%, #ff9800 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 8px;
+        }
+
+        .welcome-subtitle {
+            font-size: 18px;
+            color: #666;
+        }
+
+        .confetti {
+            position: fixed;
+            width: 10px;
+            height: 10px;
+            background: #ff6b35;
+            position: absolute;
+            animation: confettiFall 3s linear forwards;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        @keyframes bounceIn {
+            0% { transform: scale(0.3); opacity: 0; }
+            50% { transform: scale(1.05); }
+            70% { transform: scale(0.9); }
+            100% { transform: scale(1); opacity: 1; }
+        }
+
+        @keyframes swing {
+            0%, 100% { transform: rotate(0deg); }
+            25% { transform: rotate(-10deg); }
+            75% { transform: rotate(10deg); }
+        }
+
+        @keyframes confettiFall {
+            0% {
+                transform: translateY(-100vh) rotate(0deg);
+                opacity: 1;
+            }
+            100% {
+                transform: translateY(100vh) rotate(720deg);
+                opacity: 0;
+            }
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .header-content {
+                flex-wrap: wrap;
+            }
+
+            .nav-menu {
+                display: none;
+            }
+
+            .category-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .merchant-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .footer-content {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .city-grid {
+                grid-template-columns: repeat(3, 1fr);
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <header>
+        <div class="container">
+            <div class="header-content">
+                <div class="logo">🍜 外卖平台</div>
+                
+                <div class="location-selector" onclick="toggleCityDropdown()">
+                    <span class="location-icon">📍</span>
+                    <span id="currentCity">北京</span>
+                    <span>▼</span>
+                    
+                    <div class="city-dropdown" id="cityDropdown">
+                        <div class="city-group">
+                            <div class="city-group-title">一线城市</div>
+                            <div class="city-grid">
+                                <div class="city-item" onclick="selectCity('北京')">北京</div>
+                                <div class="city-item" onclick="selectCity('上海')">上海</div>
+                                <div class="city-item" onclick="selectCity('广州')">广州</div>
+                                <div class="city-item" onclick="selectCity('深圳')">深圳</div>
+                            </div>
+                        </div>
+                        <div class="city-group">
+                            <div class="city-group-title">新一线城市</div>
+                            <div class="city-grid">
+                                <div class="city-item" onclick="selectCity('成都')">成都</div>
+                                <div class="city-item" onclick="selectCity('杭州')">杭州</div>
+                                <div class="city-item" onclick="selectCity('重庆')">重庆</div>
+                                <div class="city-item" onclick="selectCity('武汉')">武汉</div>
+                                <div class="city-item" onclick="selectCity('西安')">西安</div>
+                                <div class="city-item" onclick="selectCity('天津')">天津</div>
+                                <div class="city-item" onclick="selectCity('苏州')">苏州</div>
+                                <div class="city-item" onclick="selectCity('南京')">南京</div>
+                            </div>
+                        </div>
+                        <div class="city-group">
+                            <div class="city-group-title">热门城市</div>
+                            <div class="city-grid">
+                                <div class="city-item" onclick="selectCity('郑州')">郑州</div>
+                                <div class="city-item" onclick="selectCity('长沙')">长沙</div>
+                                <div class="city-item" onclick="selectCity('东莞')">东莞</div>
+                                <div class="city-item" onclick="selectCity('青岛')">青岛</div>
+                                <div class="city-item" onclick="selectCity('沈阳')">沈阳</div>
+                                <div class="city-item" onclick="selectCity('大连')">大连</div>
+                                <div class="city-item" onclick="selectCity('厦门')">厦门</div>
+                                <div class="city-item" onclick="selectCity('宁波')">宁波</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <nav>
+                    <ul class="nav-menu">
+                        <li><a href="#home">首页</a></li>
+                        <li><a href="#merchants">商家</a></li>
+                        <li><a href="#orders">订单</a></li>
+                        <li><a href="#about">关于</a></li>
+                    </ul>
+                </nav>
+
+                <div class="user-actions">
+                    <button class="btn btn-primary" onclick="showWelcome()">登录/注册</button>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Search Section -->
+    <section class="search-section">
+        <div class="container">
+            <div class="search-container">
+                <div class="search-box">
+                    <span style="font-size: 20px;">🔍</span>
+                    <input type="text" class="search-input" placeholder="搜索美食、商家..." id="searchInput">
+                    <button class="search-btn" onclick="performSearch()">搜索</button>
+                </div>
+                <div class="hot-searches">
+                    <span style="color: #666; font-size: 14px;">🔥 热门搜索：</span>
+                    <span class="hot-tag" onclick="searchTag('火锅')">火锅</span>
+                    <span class="hot-tag" onclick="searchTag('烧烤')">烧烤</span>
+                    <span class="hot-tag" onclick="searchTag('奶茶')">奶茶</span>
+                    <span class="hot-tag" onclick="searchTag('汉堡')">汉堡</span>
+                    <span class="hot-tag" onclick="searchTag('日料')">日料</span>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Category Section -->
+    <section class="category-section">
+        <div class="container">
+            <div class="category-grid">
+                <div class="category-item" onclick="filterCategory('美食')">
+                    <div class="category-icon">🍜</div>
+                    <div class="category-name">美食</div>
+                </div>
+                <div class="category-item" onclick="filterCategory('超市')">
+                    <div class="category-icon">🛒</div>
+                    <div class="category-name">超市</div>
+                </div>
+                <div class="category-item" onclick="filterCategory('水果')">
+                    <div class="category-icon">🍎</div>
+                    <div class="category-name">水果</div>
+                </div>
+                <div class="category-item" onclick="filterCategory('饮品')">
+                    <div class="category-icon">🧋</div>
+                    <div class="category-name">饮品</div>
+                </div>
+                <div class="category-item" onclick="filterCategory('甜品')">
+                    <div class="category-icon">🍰</div>
+                    <div class="category-name">甜品</div>
+                </div>
+                <div class="category-item" onclick="filterCategory('快餐')">
+                    <div class="category-icon">🍔</div>
+                    <div class="category-name">快餐</div>
+                </div>
+                <div class="category-item" onclick="filterCategory('火锅')">
+                    <div class="category-icon">🍲</div>
+                    <div class="category-name">火锅</div>
+                </div>
+                <div class="category-item" onclick="filterCategory('烧烤')">
+                    <div class="category-icon">🍢</div>
+                    <div class="category-name">烧烤</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Banner Section -->
+    <section class="banner-section">
+        <div class="container">
+            <div class="banner-carousel">
+                <div class="banner-slide active">
+                    <img src="/placeholder.svg?height=300&width=1200" alt="Banner 1">
+                    <div class="banner-overlay">
+                        <div class="banner-title">新用户专享优惠</div>
+                        <div>立减20元，满30元可用</div>
+                    </div>
+                </div>
+                <div class="banner-slide">
+                    <img src="/placeholder.svg?height=300&width=1200" alt="Banner 2">
+                    <div class="banner-overlay">
+                        <div class="banner-title">品质商家推荐</div>
+                        <div>精选优质餐厅，美味送到家</div>
+                    </div>
+                </div>
+                <div class="banner-slide">
+                    <img src="/placeholder.svg?height=300&width=1200" alt="Banner 3">
+                    <div class="banner-overlay">
+                        <div class="banner-title">30分钟极速送达</div>
+                        <div>超时赔付，让您放心点餐</div>
+                    </div>
+                </div>
+                <div class="banner-dots">
+                    <span class="dot active" onclick="goToSlide(0)"></span>
+                    <span class="dot" onclick="goToSlide(1)"></span>
+                    <span class="dot" onclick="goToSlide(2)"></span>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Merchant Section -->
+    <section class="merchant-section" id="merchants">
+        <div class="container">
+            <div class="section-header">
+                <h2 class="section-title">附近商家</h2>
+                <div class="filters">
+                    <button class="filter-btn active" onclick="sortBy('default')">综合排序</button>
+                    <button class="filter-btn" onclick="sortBy('rating')">评分最高</button>
+                    <button class="filter-btn" onclick="sortBy('sales')">销量最高</button>
+                    <button class="filter-btn" onclick="sortBy('distance')">距离最近</button>
+                </div>
+            </div>
+            <div class="merchant-grid" id="merchantGrid">
+                <!-- Merchants will be loaded here -->
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer>
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-section">
+                    <h3>关于我们</h3>
+                    <ul>
+                        <li><a href="#">公司介绍</a></li>
+                        <li><a href="#">加入我们</a></li>
+                        <li><a href="#">联系方式</a></li>
+                        <li><a href="#">合作伙伴</a></li>
+                    </ul>
+                </div>
+                <div class="footer-section">
+                    <h3>商家服务</h3>
+                    <ul>
+                        <li><a href="#">商家入驻</a></li>
+                        <li><a href="#">商家中心</a></li>
+                        <li><a href="#">配送服务</a></li>
+                        <li><a href="#">营销推广</a></li>
+                    </ul>
+                </div>
+                <div class="footer-section">
+                    <h3>用户帮助</h3>
+                    <ul>
+                        <li><a href="#">常见问题</a></li>
+                        <li><a href="#">配送说明</a></li>
+                        <li><a href="#">退款政策</a></li>
+                        <li><a href="#">隐私政策</a></li>
+                    </ul>
+                </div>
+                <div class="footer-section">
+                    <h3>关注我们</h3>
+                    <ul>
+                        <li><a href="#">微信公众号</a></li>
+                        <li><a href="#">新浪微博</a></li>
+                        <li><a href="#">抖音号</a></li>
+                        <li><a href="#">小红书</a></li>
+                    </ul>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>© 2025 外卖平台. All rights reserved. | 京ICP备12345678号</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Floating Cart -->
+    <div class="floating-cart" onclick="openCart()">
+        🛒
+        <span class="cart-badge" id="cartBadge">0</span>
+    </div>
+
+    <!-- Welcome Celebration -->
+    <div class="welcome-celebration" id="welcomeCelebration">
+        <div class="welcome-card">
+            <div class="welcome-icon">🎉</div>
+            <div class="welcome-title">Welcome!</div>
+            <div class="welcome-subtitle">欢迎来到外卖平台</div>
+        </div>
+    </div>
+
+    <script>
+        // Sample merchant data
+        const merchants = [
+            { id: 1, name: '川味火锅', category: '火锅', image: '/placeholder.svg?height=180&width=300', rating: 4.8, sales: 2345, distance: '1.2km', tags: ['火锅', '川菜', '辣'], deliveryTime: '30分钟' },
+            { id: 2, name: '日式料理', category: '美食', image: '/placeholder.svg?height=180&width=300', rating: 4.9, sales: 1876, distance: '0.8km', tags: ['日料', '寿司', '刺身'], deliveryTime: '25分钟' },
+            { id: 3, name: '奶茶小站', category: '饮品', image: '/placeholder.svg?height=180&width=300', rating: 4.7, sales: 3421, distance: '0.5km', tags: ['奶茶', '饮品', '甜品'], deliveryTime: '20分钟' },
+            { id: 4, name: '汉堡王', category: '快餐', image: '/placeholder.svg?height=180&width=300', rating: 4.6, sales: 4532, distance: '1.5km', tags: ['汉堡', '快餐', '炸鸡'], deliveryTime: '35分钟' },
+            { id: 5, name: '烧烤大排档', category: '烧烤', image: '/placeholder.svg?height=180&width=300', rating: 4.8, sales: 2987, distance: '2.1km', tags: ['烧烤', '夜宵', '啤酒'], deliveryTime: '40分钟' },
+            { id: 6, name: '甜品工坊', category: '甜品', image: '/placeholder.svg?height=180&width=300', rating: 4.9, sales: 1654, distance: '0.9km', tags: ['甜品', '蛋糕', '下午茶'], deliveryTime: '28分钟' },
+            { id: 7, name: '生鲜超市', category: '超市', image: '/placeholder.svg?height=180&width=300', rating: 4.7, sales: 5432, distance: '0.6km', tags: ['超市', '生鲜', '日用'], deliveryTime: '45分钟' },
+            { id: 8, name: '水果店', category: '水果', image: '/placeholder.svg?height=180&width=300', rating: 4.8, sales: 3210, distance: '0.7km', tags: ['水果', '新鲜', '健康'], deliveryTime: '30分钟' },
+        ];
+
+        let currentSlide = 0;
+        let cartCount = 0;
+        let currentFilter = 'all';
+        let currentSort = 'default';
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', function() {
+            loadMerchants();
+            startCarousel();
+        });
+
+        // City selection
+        function toggleCityDropdown() {
+            const dropdown = document.getElementById('cityDropdown');
+            dropdown.classList.toggle('active');
+        }
+
+        function selectCity(city) {
+            document.getElementById('currentCity').textContent = city;
+            toggleCityDropdown();
+        }
+
+        // Close dropdown when clicking outside
+        document.addEventListener('click', function(event) {
+            const dropdown = document.getElementById('cityDropdown');
+            const selector = document.querySelector('.location-selector');
+            if (!selector.contains(event.target)) {
+                dropdown.classList.remove('active');
+            }
+        });
+
+        // Search
+        function performSearch() {
+            const query = document.getElementById('searchInput').value;
+            if (query) {
+                alert('搜索: ' + query);
+                // Implement search logic here
+            }
+        }
+
+        function searchTag(tag) {
+            document.getElementById('searchInput').value = tag;
+            performSearch();
+        }
+
+        // Category filter
+        function filterCategory(category) {
+            currentFilter = category;
+            loadMerchants();
+        }
+
+        // Sort
+        function sortBy(type) {
+            currentSort = type;
+            // Update active button
+            document.querySelectorAll('.filter-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            event.target.classList.add('active');
+            loadMerchants();
+        }
+
+        // Load merchants
+        function loadMerchants() {
+            let filteredMerchants = merchants;
+            
+            // Filter by category
+            if (currentFilter !== 'all') {
+                filteredMerchants = merchants.filter(m => m.category === currentFilter);
+            }
+            
+            // Sort
+            if (currentSort === 'rating') {
+                filteredMerchants.sort((a, b) => b.rating - a.rating);
+            } else if (currentSort === 'sales') {
+                filteredMerchants.sort((a, b) => b.sales - a.sales);
+            } else if (currentSort === 'distance') {
+                filteredMerchants.sort((a, b) => parseFloat(a.distance) - parseFloat(b.distance));
+            }
+            
+            const grid = document.getElementById('merchantGrid');
+            grid.innerHTML = filteredMerchants.map(merchant => `
+                <div class="merchant-card" onclick="openMerchant(${merchant.id})">
+                    <img src="${merchant.image}" alt="${merchant.name}" class="merchant-image">
+                    <div class="merchant-info">
+                        <div class="merchant-name">${merchant.name}</div>
+                        <div class="merchant-tags">
+                            ${merchant.tags.map(tag => `<span class="tag">${tag}</span>`).join('')}
+                        </div>
+                        <div class="merchant-stats">
+                            <div class="rating">⭐ ${merchant.rating}</div>
+                            <div class="delivery-info">月售${merchant.sales} | ${merchant.distance} | ${merchant.deliveryTime}</div>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function openMerchant(id) {
+            alert('打开商家详情: ' + id);
+            // Implement merchant detail page
+        }
+
+        // Carousel
+        function startCarousel() {
+            setInterval(() => {
+                currentSlide = (currentSlide + 1) % 3;
+                goToSlide(currentSlide);
+            }, 5000);
+        }
+
+        function goToSlide(index) {
+            currentSlide = index;
+            const slides = document.querySelectorAll('.banner-slide');
+            const dots = document.querySelectorAll('.dot');
+            
+            slides.forEach((slide, i) => {
+                slide.classList.toggle('active', i === index);
+            });
+            
+            dots.forEach((dot, i) => {
+                dot.classList.toggle('active', i === index);
+            });
+        }
+
+        // Cart
+        function openCart() {
+            alert('购物车功能开发中...');
+        }
+
+        function addToCart() {
+            cartCount++;
+            document.getElementById('cartBadge').textContent = cartCount;
+        }
+
+        // Welcome celebration
+        function showWelcome() {
+            const celebration = document.getElementById('welcomeCelebration');
+            celebration.classList.add('active');
+            
+            // Create confetti
+            for (let i = 0; i < 50; i++) {
+                createConfetti();
+            }
+            
+            // Hide after 3.5 seconds
+            setTimeout(() => {
+                celebration.classList.remove('active');
+            }, 3500);
+        }
+
+        function createConfetti() {
+            const confetti = document.createElement('div');
+            confetti.className = 'confetti';
+            confetti.style.left = Math.random() * 100 + '%';
+            confetti.style.animationDelay = Math.random() * 0.5 + 's';
+            confetti.style.background = ['#ff6b35', '#ff9800', '#ffd700', '#4CAF50', '#2196F3'][Math.floor(Math.random() * 5)];
+            document.body.appendChild(confetti);
+            
+            setTimeout(() => {
+                confetti.remove();
+            }, 3000);
+        }
+
+        // Enter key for search
+        document.getElementById('searchInput').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                performSearch();
+            }
+        });
+    </script>
+</body>
+</html>
